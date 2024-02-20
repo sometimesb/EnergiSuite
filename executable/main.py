@@ -1,5 +1,5 @@
 from botasaurus import *
-from mapping import NAME_ID_MAPPING
+from user import NAME_ID_MAPPING
 import json
 
 class Asset:
@@ -38,10 +38,15 @@ def parseCoinGeckoData():
     print(data)
 
 def coinGeckoLinkBuilder(mapping):
-    pass
+    base_url = "https://api.coingecko.com/api/v3/simple/price?ids="
+    for k, v in mapping.items():
+        base_url += v + "%2C"
+    base_url+= "&vs_currencies=usd"
+    return base_url
 
 def getAssets():
     energiData = json.loads(apiRequester("https://api.energiswap.exchange/v1/assets",0))
+    cgLink = coinGeckoLinkBuilder(NAME_ID_MAPPING)
     coinGeckoData = json.loads(apiRequester("https://api.coingecko.com/api/v3/simple/price?ids=energi%2Cenergi-dollar%2Cdai%2Cethereum%2Cbitcoin%2Cusd-coin&vs_currencies=usd",1))
 
     assets = []
@@ -56,7 +61,6 @@ def getAssets():
             asset.cgPrice = coinGeckoData[asset.cgID]["usd"]
     
     return assets
-    
 
 if __name__ == "__main__":
     assets = getAssets()
