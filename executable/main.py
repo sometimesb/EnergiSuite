@@ -11,7 +11,7 @@ class Asset:
         self.cgPrice = cgPrice
 
     def __str__(self):
-        return f"{self.name} {self.cgID} {self.price}"
+        return f"{self.name} {self.cgID} {self.price} {self.cgPrice}"
 
 def apiRequester(url,mode):
     @request(use_stealth=True, output="energi")
@@ -37,19 +37,29 @@ def parseCoinGeckoData():
     data = json.loads(apiRequester("https://api.coingecko.com/api/v3/simple/price?ids=energi%2Cenergi-dollar%2Cdai%2Cethereum%2Cbitcoin%2Cusd-coin&vs_currencies=usd",1))
     print(data)
 
-def parseEnergiData():
-    data = json.loads(apiRequester("https://api.energiswap.exchange/v1/assets",0))
+def coinGeckoLinkBuilder(mapping):
+    pass
+
+def getAssets():
+    energiData = json.loads(apiRequester("https://api.energiswap.exchange/v1/assets",0))
+    coinGeckoData = json.loads(apiRequester("https://api.coingecko.com/api/v3/simple/price?ids=energi%2Cenergi-dollar%2Cdai%2Cethereum%2Cbitcoin%2Cusd-coin&vs_currencies=usd",1))
+
     assets = []
-    for key, value in data.items():
-        cgID = NAME_ID_MAPPING.get(value["name"])
-        asset = Asset(value["name"], value["symbol"], value["last_price"], cgID)
-        if  asset.name in NAME_ID_MAPPING:
+    for key, value in energiData.items():
+        if value["name"] in NAME_ID_MAPPING:
+            cgID = NAME_ID_MAPPING.get(value["name"])
+            asset = Asset(value["name"], value["symbol"], value["last_price"], cgID)
             assets.append(asset)
+    
+    for asset in assets:
+        if asset.cgID in coinGeckoData:
+            asset.cgPrice = coinGeckoData[asset.cgID]["usd"]
+    
     return assets
+    
 
 if __name__ == "__main__":
-    energiAssets = parseEnergiData()
-    coinGeckoAssets = parseCoinGeckoData()
-    for energiAsset in energiAssets:
-        print(energiAsset)
+    assets = getAssets()
+    for asset in assets:
+        print(asset)
 
