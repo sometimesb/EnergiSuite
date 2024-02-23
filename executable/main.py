@@ -1,5 +1,5 @@
 from botasaurus import *
-from user import NAME_ID_MAPPING
+from user import NAME_ID_MAPPING_CRYPTO_MODE
 import customtkinter
 import json
 import tkinter
@@ -50,7 +50,7 @@ class App(customtkinter.CTk):
 
         self.running_mode_label = customtkinter.CTkLabel(self.sidebar_frame, text="Running Mode:", anchor="w")
         self.running_mode_label.grid(row=6, column=0, padx=20, pady=(10, 0))
-        self.running_mode_menu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["USD Mode", "Crypto Mode"],command=self.change_appearance_mode_event)
+        self.running_mode_menu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["USD Mode", "Crypto Mode"],command=self.running_mode_event)
         self.running_mode_menu.grid(row=7, column=0, padx=20, pady=(10, 10))
 
         self.appearance_mode_label = customtkinter.CTkLabel(self.sidebar_frame, text="Appearance Mode:", anchor="w")
@@ -87,7 +87,7 @@ class App(customtkinter.CTk):
 
         #second tabview
         self.text_var_r_2 = tkinter.StringVar(value="")
-        self.slider_2 = customtkinter.CTkSlider(self.tabview.tab("CryptoMode Parameters"), from_=0, to=5, number_of_steps=50,button_color="blue",command=self.slider_event_2)
+        self.slider_2 = customtkinter.CTkSlider(self.tabview.tab("CryptoMode Parameters"), from_=0, to=10, number_of_steps=100,button_color="blue",command=self.slider_event_2)
         self.slider_2.grid(row=3, column=0, padx=(20, 10), pady=(100, 100), sticky="ew")
 
         self.entry_2 = customtkinter.CTkLabel(self.tabview.tab("CryptoMode Parameters"),font=customtkinter.CTkFont(size=15),corner_radius=8,text_color="white",textvariable=self.text_var_r_2)
@@ -100,8 +100,8 @@ class App(customtkinter.CTk):
         self.scrollable_frame_switches_USD = []
 
         # Create switches with specific values
-        switch_values = ["DAI", "USDC", "USDE"]
-        for value in switch_values:
+        self.switch_values = ["DAI", "USDC", "USDE"]
+        for value in self.switch_values:
             switch = customtkinter.CTkSwitch(master=self.scrollable_frame_USD, text=value)
             switch.grid(row=len(self.scrollable_frame_switches_USD), column=0, padx=10, pady=(0, 20))
             self.scrollable_frame_switches_USD.append(switch)
@@ -112,7 +112,7 @@ class App(customtkinter.CTk):
         self.scrollable_frame_switches_CG = []
 
         # Access key values from dictionary
-        coin_names = list(NAME_ID_MAPPING.keys())
+        coin_names = list(NAME_ID_MAPPING_CRYPTO_MODE.keys())
 
         for name in coin_names:
             switch = customtkinter.CTkSwitch(master=self.scrollable_frame_CG, text=name)
@@ -120,17 +120,44 @@ class App(customtkinter.CTk):
             self.scrollable_frame_switches_CG.append(switch)
 
         #set defaults
-        self.text_var_r_1.set(f"{round(float(self.slider_1.get()), 2)}")
-        self.text_var_r_2.set(f"{round(float(self.slider_2.get()), 2)}")
+        self.text_var_r_1.set(f"{round(float(self.slider_1.get()), 1)}%")
+        self.text_var_r_2.set(f"{round(float(self.slider_2.get()), 2)}%")
 
         self.appearance_mode_optionemenu.set("Dark")
         self.scaling_optionemenu.set("100%")
+        self.running_mode_menu.set("Crypto Mode")
+        self.running_mode_event("Crypto Mode")
+    
+    def running_mode_event(self, mode):
+        if mode == "USD Mode":
+            self.tabview.set("USDMode Parameters")
+            self.slider_2.configure(state="disabled")
+            self.slider_1.configure(state="normal")
+            for self.switch in self.scrollable_frame_switches_CG:
+                self.switch.configure(state="disabled")  
+            for self.switch in self.scrollable_frame_switches_USD:
+                self.switch.configure(state="normal") 
+
+        elif mode == "Crypto Mode":
+            self.slider_1.configure(state="disabled")
+            self.slider_2.configure(state="normal")
+
+            self.tabview.set("CryptoMode Parameters")
+            for self.switch in self.scrollable_frame_switches_USD:
+                self.switch.configure(state="disabled")
+                self.switch.toggle()
+            for self.switch in self.scrollable_frame_switches_CG:
+                self.switch.configure(state="normal") 
+
+        else:
+            # Handle invalid mode (optional)
+            print("Invalid mode:", mode)
 
     def slider_event_1(self,value):
-        self.text_var_r_1.set(f"{round(float(self.slider_1.get()), 1)}")
+        self.text_var_r_1.set(f"{round(float(self.slider_1.get()), 1)}%")
 
     def slider_event_2(self,value):
-        self.text_var_r_2.set(f"{round(float(self.slider_2.get()), 1)}")
+        self.text_var_r_2.set(f"{round(float(self.slider_2.get()), 1)}%")
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
@@ -181,13 +208,13 @@ def coinGeckoLinkBuilder(mapping):
 
 def getAssets():
     energiData = json.loads(apiRequester("https://api.energiswap.exchange/v1/assets",0))
-    cgLink = coinGeckoLinkBuilder(NAME_ID_MAPPING)
+    cgLink = coinGeckoLinkBuilder(NAME_ID_MAPPING_CRYPTO_MODE)
     coinGeckoData = json.loads(apiRequester("https://api.coingecko.com/api/v3/simple/price?ids=energi%2Cenergi-dollar%2Cdai%2Cethereum%2Cbitcoin%2Cusd-coin&vs_currencies=usd",1))
 
     assets = []
     for key, value in energiData.items():
-        if value["name"] in NAME_ID_MAPPING:
-            cgID = NAME_ID_MAPPING.get(value["name"])
+        if value["name"] in NAME_ID_MAPPING_CRYPTO_MODE:
+            cgID = NAME_ID_MAPPING_CRYPTO_MODE.get(value["name"])
             asset = Asset(value["name"], value["symbol"], value["last_price"], cgID)
             assets.append(asset)
     
