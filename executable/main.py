@@ -1,12 +1,11 @@
 from botasaurus import *
-from user import NAME_ID_MAPPING_CRYPTO_MODE
+from user import NAME_ID_MAPPING_CRYPTO_MODE,NAME_ID_MAPPING_USD_MODE
 import customtkinter
 import json
 import tkinter
 import tkinter.messagebox
 import customtkinter
 from tkinter import ttk
-import colorama
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("green")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -22,22 +21,32 @@ class Asset:
     def __str__(self):
         return f"{self.name} {self.cgID} {self.price} {self.cgPrice}"
 
+#UI
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
+        self.configure_window()
+        self.create_sidebar_frame()
+        self.create_textbox()
+        self.create_scrollable_frames()
+        self.set_defaults()
 
-        # configure window
+    def configure_window(self):
+        """Configures the window title, geometry, and grid layout."""
+
         self.title("Energi Suite")
         self.geometry(f"{1100}x{580}")
-        self.minsize(1100,580)
-        self.maxsize(1100,580)
+        self.minsize(1100, 580)
+        self.maxsize(1100, 580)
 
-        # configure grid layout (4x4)
+        # Configure grid layout (4x4)
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure((2, 3), weight=0)
         self.grid_rowconfigure((0, 1, 2), weight=1)
 
-        # create sidebar frame with widgets
+    def create_sidebar_frame(self):
+        """Creates the sidebar frame with its widgets."""
+
         self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
         self.sidebar_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
         self.sidebar_frame.grid_rowconfigure(5, weight=1)
@@ -45,25 +54,31 @@ class App(customtkinter.CTk):
         self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="Energi Suite", font=customtkinter.CTkFont(size=20, weight="bold"))
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
 
-        self.sidebar_button_1 = customtkinter.CTkButton(self.sidebar_frame, text="Execute", command=self.execute)
-        self.sidebar_button_1.grid(row=1, column=0, padx=20, pady=10)
-
         self.running_mode_label = customtkinter.CTkLabel(self.sidebar_frame, text="Running Mode:", anchor="w")
         self.running_mode_label.grid(row=6, column=0, padx=20, pady=(10, 0))
-        self.running_mode_menu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["USD Mode", "Crypto Mode"],command=self.running_mode_event)
+        self.running_mode_menu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["USD Mode", "Crypto Mode"], command=self.running_mode_event)
         self.running_mode_menu.grid(row=7, column=0, padx=20, pady=(10, 10))
+
+        self.sidebar_button_1 = customtkinter.CTkButton(self.sidebar_frame, text="Execute", command=lambda: self.execute(self.running_mode_menu.get()))
+        self.sidebar_button_1.grid(row=1, column=0, padx=20, pady=10)
+
+        #TODO - Fix this
+        self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, text="Start Auto Execute", command=lambda: self.AutoRunDialoge())
+        self.sidebar_button_2.grid(row=2, column=0, padx=20, pady=10)
 
         self.appearance_mode_label = customtkinter.CTkLabel(self.sidebar_frame, text="Appearance Mode:", anchor="w")
         self.appearance_mode_label.grid(row=8, column=0, padx=20, pady=(10, 0))
-        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["Light", "Dark", "System"],command=self.change_appearance_mode_event)
+        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["Light", "Dark", "System"], command=self.change_appearance_mode_event)
         self.appearance_mode_optionemenu.grid(row=9, column=0, padx=20, pady=(10, 10))
 
         self.scaling_label = customtkinter.CTkLabel(self.sidebar_frame, text="UI Scaling:", anchor="w")
         self.scaling_label.grid(row=10, column=0, padx=20, pady=(10, 0))
-        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["80%", "90%", "100%", "110%", "120%"],command=self.change_scaling_event)
+        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["80%", "90%", "100%", "110%"], command=self.change_scaling_event)
         self.scaling_optionemenu.grid(row=11, column=0, padx=20, pady=(10, 20))
 
-        # create textbox
+    def create_textbox(self):
+        """Creates the textbox with its initial text and disabled state."""
+
         self.textbox = customtkinter.CTkTextbox(self, width=250)
         self.textbox.grid(row=0, column=1, columnspan=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         self.textbox.insert("0.0", "Execute to populate data.")
@@ -87,39 +102,39 @@ class App(customtkinter.CTk):
 
         #second tabview
         self.text_var_r_2 = tkinter.StringVar(value="")
-        self.slider_2 = customtkinter.CTkSlider(self.tabview.tab("CryptoMode Parameters"), from_=0, to=10, number_of_steps=100,button_color="blue",command=self.slider_event_2)
+        self.slider_2 = customtkinter.CTkSlider(self.tabview.tab("CryptoMode Parameters"), from_=0, to=10, number_of_steps=100,button_color="blue",button_hover_color="blue",command=self.slider_event_2)
         self.slider_2.grid(row=3, column=0, padx=(20, 10), pady=(100, 100), sticky="ew")
 
         self.entry_2 = customtkinter.CTkLabel(self.tabview.tab("CryptoMode Parameters"),font=customtkinter.CTkFont(size=15),corner_radius=8,text_color="white",textvariable=self.text_var_r_2)
         self.entry_2.grid(row=3, column=1, columnspan=1, padx=(5,5), pady=(5,5), sticky="ew")
 
-        # create scrollable frame
+    def create_scrollable_frames(self):
+        """Creates scrollable frames for USD and Crypto coin selections with switches."""
+
+        # Define a common function for creating switches
+        def create_switches(frame, mapping, switch_list):
+            for symbol in [value[1] for key, value in mapping.items()]:
+                switch = customtkinter.CTkSwitch(master=frame, text=symbol)
+                switch.grid(row=len(switch_list), column=0, padx=10, pady=(0, 20))
+                switch_list.append(switch)
+
+        # Create USD Coin Selection frame
         self.scrollable_frame_USD = customtkinter.CTkScrollableFrame(self, label_text="USD Coin Selection")
         self.scrollable_frame_USD.grid(row=1, column=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
         self.scrollable_frame_USD.grid_columnconfigure(0, weight=1)
         self.scrollable_frame_switches_USD = []
+        create_switches(self.scrollable_frame_USD, NAME_ID_MAPPING_USD_MODE, self.scrollable_frame_switches_USD)
 
-        # Create switches with specific values
-        self.switch_values = ["DAI", "USDC", "USDE"]
-        for value in self.switch_values:
-            switch = customtkinter.CTkSwitch(master=self.scrollable_frame_USD, text=value)
-            switch.grid(row=len(self.scrollable_frame_switches_USD), column=0, padx=10, pady=(0, 20))
-            self.scrollable_frame_switches_USD.append(switch)
-
+        # Create Crypto Coin Selection frame
         self.scrollable_frame_CG = customtkinter.CTkScrollableFrame(self, label_text="Crypto Coin Selection")
         self.scrollable_frame_CG.grid(row=1, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         self.scrollable_frame_CG.grid_columnconfigure(0, weight=1)
         self.scrollable_frame_switches_CG = []
+        create_switches(self.scrollable_frame_CG, NAME_ID_MAPPING_CRYPTO_MODE, self.scrollable_frame_switches_CG)
 
-        # Access key values from dictionary
-        coin_names = list(NAME_ID_MAPPING_CRYPTO_MODE.keys())
+    def set_defaults(self):
+        """Sets default values for text variables, option menus, and triggers an event."""
 
-        for name in coin_names:
-            switch = customtkinter.CTkSwitch(master=self.scrollable_frame_CG, text=name)
-            switch.grid(row=len(self.scrollable_frame_switches_CG), column=0, padx=10, pady=(0, 20))
-            self.scrollable_frame_switches_CG.append(switch)
-
-        #set defaults
         self.text_var_r_1.set(f"{round(float(self.slider_1.get()), 1)}%")
         self.text_var_r_2.set(f"{round(float(self.slider_2.get()), 2)}%")
 
@@ -127,7 +142,7 @@ class App(customtkinter.CTk):
         self.scaling_optionemenu.set("100%")
         self.running_mode_menu.set("Crypto Mode")
         self.running_mode_event("Crypto Mode")
-    
+
     def running_mode_event(self, mode):
         if mode == "USD Mode":
             self.tabview.set("USDMode Parameters")
@@ -165,65 +180,124 @@ class App(customtkinter.CTk):
     def change_scaling_event(self, new_scaling: str):
         new_scaling_float = int(new_scaling.replace("%", "")) / 100
         customtkinter.set_widget_scaling(new_scaling_float)
+    
+    #TODO: FIX THIS
+    def AutoRunDialoge(self):
+        self.dialog = customtkinter.CTkInputDialog(text="Type in a number:", title="Test")
+        print("Number:", self.dialog.get_input())
 
-    def execute(self):
+    def execute(self, runningMode):
         self.textbox.configure(state="normal")
         self.textbox.delete(0.0, 'end')
-        assets = getAssets()
+
+        assets = self.getAssets(runningMode)
+        any_assets_added = False
+
         for asset in assets:
-            print(asset)
-            self.textbox.insert("0.0",asset)
-            self.textbox.insert("0.0","\n")
+            if (runningMode == "Crypto Mode") and float(self.text_var_r_2.get().replace('%', '')) < self.profitPercent(asset.price, asset.cgPrice):
+                self.textbox.insert("0.0", asset.symbol + " " + str(self.profitPercent(asset.price, asset.cgPrice)) + "%\n")
+                any_assets_added = True
+            elif (runningMode == "USD Mode") and float(self.text_var_r_1.get().replace('%', '')) < self.profitPercent(asset.price, asset.cgPrice):
+                self.textbox.insert("0.0", asset.symbol + " " + str(self.profitPercent(asset.price, asset.cgPrice)) + "%\n")
+                any_assets_added = True
 
-def apiRequester(url,mode):
-    @request(use_stealth=True, output="energi")
-    def EnergiRequester(request: AntiDetectRequests, data):
-        response = request.get(url)
-        if response.status_code != 200:
-            return "Error"
-        return response.text
-    
-    @request(use_stealth=True, output="coingecko")
-    def CoinGeckoRequester(request: AntiDetectRequests, data):
-        response = request.get(url)
-        if response.status_code != 200:
-            return "Error"
-        return response.text
+        if not any_assets_added:
+            self.textbox.insert("0.0", "Search completed, nothing met minimum profit requirement or no coins enabled.\n")
 
-    if mode == 0:
-        return EnergiRequester()
-    elif mode == 1:
-        return CoinGeckoRequester()
+        self.textbox.configure(state="disabled")
 
-def parseCoinGeckoData():
-    data = json.loads(apiRequester("https://api.coingecko.com/api/v3/simple/price?ids=energi%2Cenergi-dollar%2Cdai%2Cethereum%2Cbitcoin%2Cusd-coin&vs_currencies=usd",1))
-    print(data)
+    #SCRAPING
+    def profitPercent(self, energiPrice, cgPrice):
+        if cgPrice is None or energiPrice is None:
+            return None  
+        try:
+            if cgPrice == 0:
+                return float('inf') 
+            else:
+                return (abs(energiPrice-cgPrice))/((energiPrice+cgPrice)/2)*100
+        except ZeroDivisionError:
+            return None
 
-def coinGeckoLinkBuilder(mapping):
-    base_url = "https://api.coingecko.com/api/v3/simple/price?ids="
-    for k, v in mapping.items():
-        base_url += v + "%2C"
-    base_url+= "&vs_currencies=usd"
-    return base_url
+    def apiRequester(self,url,mode):
+        @request(use_stealth=True, output="energi")
+        def EnergiRequester(request: AntiDetectRequests, data):
+            response = request.get(url)
+            if response.status_code != 200:
+                return "Error"
+            return response.text
+        
+        @request(use_stealth=True, output="coingecko")
+        def CoinGeckoRequester(request: AntiDetectRequests, data):
+            response = request.get(url)
+            if response.status_code != 200:
+                return "Error"
+            return response.text
 
-def getAssets():
-    energiData = json.loads(apiRequester("https://api.energiswap.exchange/v1/assets",0))
-    cgLink = coinGeckoLinkBuilder(NAME_ID_MAPPING_CRYPTO_MODE)
-    coinGeckoData = json.loads(apiRequester("https://api.coingecko.com/api/v3/simple/price?ids=energi%2Cenergi-dollar%2Cdai%2Cethereum%2Cbitcoin%2Cusd-coin&vs_currencies=usd",1))
+        if mode == 0:
+            return EnergiRequester()
+        elif mode == 1:
+            return CoinGeckoRequester()
 
-    assets = []
-    for key, value in energiData.items():
-        if value["name"] in NAME_ID_MAPPING_CRYPTO_MODE:
-            cgID = NAME_ID_MAPPING_CRYPTO_MODE.get(value["name"])
+    def coinGeckoLinkBuilder(self,mapping):
+        base_url = "https://api.coingecko.com/api/v3/simple/price?ids="
+        for k, v in mapping.items():
+            # Use the 0th index value (name) for the link
+            base_url += v[0] + "%2C"
+        base_url += "&vs_currencies=usd"
+        return base_url
+
+    def getAssets(self,runningMode):
+        energiData = json.loads(self.apiRequester("https://api.energiswap.exchange/v1/assets", 0))
+        switch_states = {}
+                
+        if runningMode == "Crypto Mode":
+            cgLink = self.coinGeckoLinkBuilder(NAME_ID_MAPPING_CRYPTO_MODE)
+            try:
+                coinGeckoData = json.loads(self.apiRequester(cgLink, 1))
+                print(coinGeckoData)
+                for switch, name in zip(self.scrollable_frame_switches_CG, NAME_ID_MAPPING_CRYPTO_MODE):
+                    toggle_value = switch.get()
+                    switch_states[name] = toggle_value  
+            except:
+                self.textbox.configure(state="normal")
+                self.textbox.delete(0.0, 'end')
+                self.textbox.insert("0.0", "API Limiter hit, please wait 60 seconds for CoinGecko to unblock.\n")
+                self.textbox.configure(state="disabled")
+
+        else:
+            try:
+                cgLink = self.coinGeckoLinkBuilder(NAME_ID_MAPPING_USD_MODE)
+                coinGeckoData = json.loads(self.apiRequester(cgLink, 1)) 
+                for switch, name in zip(self.scrollable_frame_switches_USD, NAME_ID_MAPPING_USD_MODE):
+                    toggle_value = switch.get()
+                    switch_states[name] = toggle_value  
+            except:
+                self.textbox.configure(state="normal")
+                self.textbox.delete(0.0, 'end')
+                self.textbox.insert("0.0", "API Limiter hit, please wait 60 seconds for CoinGecko to unblock.\n")
+                self.textbox.configure(state="disabled")
+
+
+        assets = []
+        for key, value in energiData.items():
+            if runningMode == "Crypto Mode" and value["name"] in NAME_ID_MAPPING_CRYPTO_MODE:
+                cgID = NAME_ID_MAPPING_CRYPTO_MODE.get(value["name"])
+            elif runningMode == "USD Mode" and value["name"] in NAME_ID_MAPPING_USD_MODE:  
+                cgID = NAME_ID_MAPPING_USD_MODE.get(value["name"])
+            else:
+                continue  
             asset = Asset(value["name"], value["symbol"], value["last_price"], cgID)
             assets.append(asset)
+        for asset in assets:
+            if asset.cgID[0] in coinGeckoData:  
+                asset.cgPrice = coinGeckoData[asset.cgID[0]]["usd"]
+        filtered_assets = []
+        for asset in assets:
+            if switch_states[asset.name] != 0: 
+                filtered_assets.append(asset)
+        assets = filtered_assets  
+        return assets
     
-    for asset in assets:
-        if asset.cgID in coinGeckoData:
-            asset.cgPrice = coinGeckoData[asset.cgID]["usd"]
-    
-    return assets
-
 if __name__ == "__main__":
     app = App()
     app.mainloop()

@@ -7,17 +7,15 @@ This is currently a work in progress as I find time in the evenings and weekends
 ## 🎯 Goals
 1. Create UI/executable to be run locally on PC. Image below is work in progress.
 * UI will include:
-  1. Editable list of coins to check against
-  2. Adjustable search parameters
+  1. Editable list of coins to check against. -> Completed!
+  2. Adjustable search parameters -> Completed!
   
-![image](https://github.com/sometimesb/EnergiSuite/assets/77695101/60197504-3725-48a9-9f57-2aeaf91572cc)
-
  2. After the UI executable is completed, begin work on website that will operate much like the executable, but will be run on a server instead of locally. Website will feature graphs of profit opportunites over time for (again) an adjustable list of coins.
 
 ## Current Functionality
-'Workhorse' script is completed, and is seen below. Will scrape for both assets, map the data, and outputs the coin, its ID in coingecko, and a price difference as seen below. Python UI will call this script as needed.
+90% of UI works, only missing functionality is auto run execution mode and a popup when a target is found.
 
-![image](https://github.com/sometimesb/EnergiSuite/assets/77695101/fa4f736d-dfa8-4102-bbc0-8a44a3c09e05)
+![image](https://github.com/sometimesb/EnergiSuite/assets/77695101/85167f9e-f7b0-465d-8a01-7b4c5a44f49c)
 
 ## 🔧 Technologies Used (WIP)
 
