@@ -2,14 +2,13 @@
 A third iteration of the energi reaper bot that I built. Second version used to much RAM because it used selenium. Can now be run on a server and even headless.
 
 ## 📝 Introduction
-This Python script functions as a cryptocurrency monitoring bot, leveraging various libraries and APIs to perform comprehensive analyses. The bot employs web scraping capabilities through Selenium, Discord API for communication, and Colorama for pretty terminal output formatting. It operates in two distinct modes: CoinGecko and USD. In CoinGecko mode, the bot compares cryptocurrency prices between EnergiSwap and CoinGecko. Conversely, in USD mode, it focuses on analyzing price differentials among selected stablecoins.
+This Python script functions as a cryptocurrency monitoring bot, leveraging various libraries and APIs to perform comprehensive analyses. It operates in two distinct modes: CoinGecko and USD. In CoinGecko mode, the bot compares cryptocurrency prices between EnergiSwap and CoinGecko. Conversely, in USD mode, it focuses on analyzing price differentials among selected stablecoins.
 
-The bot supports full error logging, and resets itself if required. I put a lot of work into this bot and it made me 40x my initial investment at its peak :)
+I put a lot of work into this bot and it made me 40x my initial investment at its peak :)
 
 This uses _EnergiSwap_ (a fork of UniSwap).
 
 ## 🔧 Technologies Used
-* Discord - For bot communication
 * Python - Main driver of the script
 * Batch - executes script for the user
 
