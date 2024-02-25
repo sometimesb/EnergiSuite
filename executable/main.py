@@ -415,18 +415,22 @@ class App(customtkinter.CTk):
         if runningMode == "Crypto Mode":
             # Set the CoinGecko link for Crypto Mode
             cgLink = self.coinGeckoLinkBuilder(NAME_ID_MAPPING_CRYPTO_MODE)
-        else:
-            # Set the CoinGecko link for USD Mode
-            cgLink = self.coinGeckoLinkBuilder(NAME_ID_MAPPING_USD_MODE)
-
-        try:
-            # Get CoinGecko data and load it as JSON
-            coinGeckoData = json.loads(self.apiRequester(cgLink, 1))
-
-            # Iterate through the switches and add their states to a dictionary
+             # Iterate through the switches and add their states to a dictionary
             for switch, name in zip(self.scrollable_frame_switches_CG, NAME_ID_MAPPING_CRYPTO_MODE):
                 toggle_value = switch.get()
                 switch_states[name] = toggle_value  
+            
+        else:
+            # Set the CoinGecko link for USD Mode
+            cgLink = self.coinGeckoLinkBuilder(NAME_ID_MAPPING_USD_MODE)
+             # Iterate through the switches and add their states to a dictionary
+            for switch, name in zip(self.scrollable_frame_switches_USD, NAME_ID_MAPPING_USD_MODE):
+                toggle_value = switch.get()
+                switch_states[name] = toggle_value  
+        try:
+            # Get CoinGecko data and load it as JSON
+            coinGeckoData = json.loads(self.apiRequester(cgLink, 1))
+        
         except:
             # Handle API limit hit for CoinGecko
             self.textbox.configure(state="normal")
