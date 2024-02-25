@@ -1,0 +1,10 @@
+{
+  "NAME_ID_MAPPING_CRYPTO_MODE": {
+    "Ether": ["ethereum","ETH"],
+    "Bitcoin": ["bitcoin","BTC"]
+  },
+  "NAME_ID_MAPPING_USD_MODE": {
+    "Energi Dollar": ["energi-dollar","USDE"],
+    "Dai Stablecoin": ["dai","DAI"]
+  }
+}
